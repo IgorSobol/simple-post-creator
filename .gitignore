@@ -1,3 +1,6 @@
+.DS_Store
+.vscode/*
+
 # CLIENT
 
 # Logs
@@ -15,10 +18,9 @@
 /client/*.local
 
 # Editor directories and files
-/client/.vscode/*
+
 /client/!.vscode/extensions.json
 /client/.idea
-/client/.DS_Store
 /client/*.suo
 /client/*.ntvs*
 /client/*.njsproj
