@@ -101,7 +101,11 @@ export default {
         }),
       })
 
-      if(data.ok) alert('Post added!')
+      if(data.ok) {
+        alert('Post editing!')
+        this.cancelEdit();
+        this.getPosts();
+      }
       if(!data.ok) alert('Something that wrong!')
     },
     async deletePost(id) {
