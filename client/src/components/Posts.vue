@@ -1,17 +1,24 @@
 <template>
   <div>
-    <h1>Posts</h1>
-    <input
-      type="text"
-      v-model="title"
-      placeholder="Title"
-      class="title-input input"
-    >
-    <textarea v-model="body" placeholder="Body" class="body-input input" rows="4" cols="50"></textarea>
+    <div class="create-post-form">
+      <h1>Posts</h1>
+      <input
+        type="text"
+        v-model="title"
+        placeholder="Title"
+        class="title-input input"
+      >
+      <textarea v-model="body" placeholder="Body" class="body-input input" rows="4" cols="50"></textarea>
 
-    <button class="btn" v-if="isEditing" @click="updatePost">Update</button>
-    <button class="btn" v-if="isEditing" @click="cancelEdit">Cancel</button>
-    <button class="btn" v-else @click="createPost">Create</button>
+      <div class="create-post-form__footer">
+        <div v-if="isEditing" class="create-post-form__footer-edit-group">
+          <button class="btn" @click="updatePost">Update</button>
+          <button class="btn" @click="cancelEdit">Cancel</button>
+        </div>
+
+        <button class="btn" v-else @click="createPost">Create</button>
+      </div>
+    </div>
 
     <ul class="posts">
       <li
@@ -27,7 +34,7 @@
         <p class="post__date">{{ post.created_at }}</p>
 
         <div class="post__footer">
-          <button>Edit</button>
+          <button @click="editPost(post.id)">Edit</button>
           <button @click="deletePost(post.id)">Delete</button>
         </div>
       </li>
@@ -42,6 +49,7 @@ export default {
     return {
       title: "",
       body: "",
+      editPostId: "",
       isEditing: false,
       API_URL: "http://localhost:3000/posts",
       posts: [],
@@ -56,6 +64,24 @@ export default {
     },
     cancelEdit() {
       return true;
+    },
+    editPost(id) {
+      const post = this.posts.filter(post => post.id === id);
+
+      this.title = post[0].title;
+      this.body = post[0].body;
+      this.editPostId = id;
+      this.isEditing = true;
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      })
+    },
+    cancelEdit() {
+      this.title = "";
+      this.body = "";
+      this.isEditing = false;
     },
     async getPosts() {
       const data = await fetch(this.API_URL);
@@ -85,12 +111,50 @@ export default {
 
       // this.posts.filter(post => post.id !== id) // And reload after filtering? refs?
       this.getPosts();
-    }
+    },
+    async updatePost() {
+      if (!this.title.length || !this.body.length) return;
+
+      const data = await fetch(`${this.API_URL}/${this.editPostId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: this.title,
+          body: this.body,
+          id: this.editPostId,
+        }),
+      })
+
+      if(data.ok) {
+        alert('Post editing!')
+        this.cancelEdit();
+        this.getPosts();
+      }
+      if(!data.ok) alert('Something that wrong!')
+    },
   },
 }
 </script>
 
 <style lang="scss" scoped>
+.create-post-form__footer {
+  &-edit-group {
+    display: flex;
+    justify-content: space-between;
+
+    button {
+      &:first-child {
+        margin-right: 10px;
+      }
+      &:last-child {
+        margin-left: 10px;
+      }
+    }
+  }
+}
+
 .input {
   width: 100%;
   padding: 12px 20px;
