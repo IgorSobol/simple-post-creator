@@ -28,7 +28,7 @@
 
         <div class="post__footer">
           <button>Edit</button>
-          <button>Delete</button>
+          <button @click="deletePost(post.id)">Delete</button>
         </div>
       </li>
     </ul>
@@ -58,10 +58,8 @@ export default {
       return true;
     },
     async getPosts() {
-        const data = await fetch(this.API_URL)
-
-        this.posts = await data.json()
-      },
+      const data = await fetch(this.API_URL);
+      this.posts = await data.json();
     },
     async createPost() {
       if (!this.title.length || !this.body.length) return;
@@ -80,6 +78,15 @@ export default {
       if(data.ok) alert('Post added!')
       if(!data.ok) alert('Something that wrong!')
     },
+    async deletePost(id) {
+      await fetch(`${this.API_URL}/${id}`, {
+        method: "DELETE",
+      })
+
+      // this.posts.filter(post => post.id !== id) // And reload after filtering? refs?
+      this.getPosts();
+    }
+  },
 }
 </script>
 
